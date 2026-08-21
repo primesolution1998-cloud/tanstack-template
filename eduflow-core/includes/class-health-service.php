@@ -1,0 +1,21 @@
+<?php
+defined( 'ABSPATH' ) || exit;
+
+final class EduFlow_Health_Service {
+	public static function report() {
+		global $wpdb; $institute_id=EduFlow_Settings::institute_db_id();
+		$tables=array();foreach(EduFlow_DB::tables()as$table){$tables[$table]=$table===$wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s',$wpdb->esc_like($table)));}
+		$jobs=EduFlow_DB::table('jobs');$events=EduFlow_DB::table('google_events');$notifications=EduFlow_DB::table('notifications');$conflicts=EduFlow_DB::table('migration_conflicts');
+		$failed_jobs=(int)$wpdb->get_var("SELECT COUNT(*) FROM $jobs WHERE status='failed'");
+		$failed_notifications=(int)$wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $notifications WHERE institute_id=%d AND notification_status='failed'",$institute_id));
+		$open_conflicts=(int)$wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $conflicts WHERE institute_id=%d AND conflict_status='open'",$institute_id));
+		$google=EduFlow_Google_Service::public_status($institute_id);$google_status=array('connected'=>$google['connected'],'calendar_configured'=>(bool)$google['calendar_id'],'connection_status'=>$google['connection_status'],'pending_sync'=>(int)$wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $events WHERE institute_id=%d AND sync_status='pending'",$institute_id)),'failed_sync'=>(int)$wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $events WHERE institute_id=%d AND sync_status='failed'",$institute_id)),'last_successful_sync'=>get_option('eduflow_google_last_successful_sync',null));
+		$role_status=array();foreach(array('eduflow_institute_admin','eduflow_manager','eduflow_teacher','eduflow_student')as$slug){$role=get_role($slug);$role_status[$slug]=(bool)$role;}
+		$settings=EduFlow_Settings::get_all();$warnings=array();if(version_compare(PHP_VERSION,'7.4','<')){$warnings[]='PHP 7.4 or newer is required.';}if(!is_ssl()){$warnings[]='HTTPS is strongly recommended for portals and Google OAuth.';}if(defined('DISABLE_WP_CRON')&&DISABLE_WP_CRON){$warnings[]='WP-Cron is disabled; configure a system cron runner.';}if(!$institute_id){$warnings[]='Institute configuration is missing.';}if($failed_jobs){$warnings[]='Failed jobs require review.';}if($open_conflicts){$warnings[]='Migration conflicts require review.';}
+		$critical=!$institute_id||in_array(false,$tables,true)||!$role_status['eduflow_institute_admin'];$overall=$critical?'ACTION REQUIRED':($warnings||$failed_notifications||$google_status['failed_sync']?'WARNING':'HEALTHY');
+		return array('overall'=>$overall,'plugin_name'=>'EduFlow Institute Suite','plugin_version'=>EDUFLOW_CORE_VERSION,'wordpress_version'=>get_bloginfo('version'),'php_version'=>PHP_VERSION,'minimum_php'=>'7.4','database'=>array('healthy'=>!in_array(false,$tables,true),'required_tables'=>$tables),'roles'=>$role_status,'canonical_ids'=>array('sequence_table_ready'=>$tables[EduFlow_DB::table('id_sequences')]??false),'cron'=>array('hook'=>EduFlow_Job_Service::CRON_HOOK,'scheduled'=>(bool)wp_next_scheduled(EduFlow_Job_Service::CRON_HOOK),'runner_locked'=>(bool)get_option(EduFlow_Job_Service::RUN_LOCK,false),'disabled'=>(bool)(defined('DISABLE_WP_CRON')&&DISABLE_WP_CRON)),'jobs'=>array('failed'=>$failed_jobs,'last_automation_run'=>get_option('eduflow_last_automation_run',null)),'google'=>$google_status,'notifications'=>array('failed'=>$failed_notifications),'migration'=>array('open_conflicts'=>$open_conflicts,'readiness'=>EduFlow_Migration_Service::readiness($institute_id)),'institute'=>array('configured'=>(bool)$institute_id,'name'=>$settings['institute_name'],'timezone'=>$settings['timezone'],'currency'=>$settings['currency']),'security_warnings'=>$warnings,'legacy_retirement'=>self::legacy_retirement());
+	}
+	public static function legacy_retirement() {
+		$functions=array('Admissions','Students','Teacher / Employee','Manager','DemoFlow','ClassFlow','BatchFlow','Meet / Calendar','Class Access','Attendance / Reports');$detected=EduFlow_Migration_Service::detect();$rows=array();foreach($functions as$function){$rows[]=array('function'=>$function,'classification'=>$detected?'UNKNOWN / MANUAL REVIEW':'KEEP ACTIVE','reason'=>$detected?'Detected legacy candidates require completed reconciliation and live verification.':'No verified legacy implementation was detected; do not deactivate anything based on absence alone.');}return $rows;
+	}
+}

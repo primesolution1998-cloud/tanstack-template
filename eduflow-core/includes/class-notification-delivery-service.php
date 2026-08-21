@@ -1,0 +1,11 @@
+<?php
+defined( 'ABSPATH' ) || exit;
+
+interface EduFlow_WhatsApp_Provider_Interface { public function send( $mobile, $template_key, array $parameters ); }
+final class EduFlow_Notification_Delivery_Service {
+	public static function register(){add_filter('eduflow_run_job_notification_dispatch',array(__CLASS__,'dispatch'),10,2);}
+	public static function dispatch($unused,$payload){global $wpdb;$id=absint($payload['notification_id']??0);$institute=absint($payload['institute_id']??0);$table=EduFlow_DB::table('notifications');$row=$wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE id=%d AND institute_id=%d AND notification_status IN ('pending','queued','failed')",$id,$institute),ARRAY_A);if(!$row){return true;}$wpdb->update($table,array('notification_status'=>'queued','updated_at'=>current_time('mysql',true)),array('id'=>$id,'institute_id'=>$institute));$channels=explode(',',$row['channels']);$errors=array();if(in_array('email_ready',$channels,true)){$address=self::recipient_value($row,'email');if($address&&is_email($address)){if(!wp_mail($address,$row['title'],$row['message'])){$errors[]='Email delivery failed.';}}elseif($address){$errors[]='Invalid email skipped.';}}
+		if(in_array('whatsapp_ready',$channels,true)){$mobile=self::recipient_value($row,'mobile');if($mobile){$normalized=EduFlow_Contact_Service::normalize_indian_mobile($mobile);if(!is_wp_error($normalized)){do_action('eduflow_whatsapp_queued',array('template_key'=>$row['event_type'],'recipient_mobile'=>$normalized,'parameters'=>array('title'=>$row['title'],'message'=>$row['message']),'notification_id'=>$id));}}}
+		$status=$errors?'failed':'sent';$wpdb->update($table,array('notification_status'=>$status,'sent_at'=>'sent'===$status?current_time('mysql',true):null,'failure_reason'=>$errors?sanitize_textarea_field(implode(' ',$errors)):null,'updated_at'=>current_time('mysql',true)),array('id'=>$id,'institute_id'=>$institute));return true;}
+	private static function recipient_value($row,$field){global $wpdb;if(!in_array($row['recipient_type'],array('student','teacher'),true)){return '';}$table=EduFlow_DB::table('student'===$row['recipient_type']?'students':'teachers');return (string)$wpdb->get_var($wpdb->prepare("SELECT $field FROM $table WHERE id=%d AND institute_id=%d",$row['recipient_id'],$row['institute_id']));}
+}

@@ -1,0 +1,30 @@
+<?php
+$root=dirname(__DIR__).'/eduflow-core/';$read=static function($file)use($root){return file_get_contents($root.$file);};$boot=$read('eduflow-core.php');$db=$read('includes/class-db.php');$roles=$read('includes/class-roles.php');$jobs=$read('includes/class-job-service.php');$health=$read('includes/class-health-service.php');$migration=$read('includes/class-migration-service.php');$rest=$read('includes/class-rest.php');$admin=$read('admin/class-admin.php');$google=$read('includes/class-google-service.php');$uninstall=$read('uninstall.php');$all=$boot.$db.$roles.$jobs.$health.$migration.$rest.$admin.$google.$uninstall;
+$checks=array(
+'product and version'=>str_contains($boot,'Plugin Name: EduFlow Institute Suite')&&substr_count($boot,'8.0.0-RC1')===2,
+'stable slug'=>is_dir($root)&&str_contains($boot,'EDUFLOW_CORE_DIR'),
+'dynamic prefix'=>str_contains($db,"\$wpdb->prefix . 'eduflow_'"),
+'google event unique'=>str_contains($db,'UNIQUE KEY institute_google_event (institute_id,google_event_id)'),
+'core unique invariants'=>str_contains($db,'UNIQUE KEY institute_admission')&&str_contains($db,'UNIQUE KEY payment_change')&&str_contains($db,'UNIQUE KEY assignment_key')&&str_contains($db,'UNIQUE KEY schedule_key')&&str_contains($db,'UNIQUE KEY canonical_slot')&&str_contains($db,'UNIQUE KEY lecture_student')&&str_contains($db,'UNIQUE KEY legacy_record'),
+'role upgrade reconciliation'=>str_contains($roles,'remove_cap')&&str_contains($roles,'get_role( $slug )'),
+'teacher least privilege'=>str_contains($roles,"'eduflow_teacher'=>array( 'EduFlow Teacher', array( 'read'=>true, 'eduflow_view_own_classes'=>true, 'eduflow_view_own_profile'=>true )"),
+'student least privilege'=>str_contains($roles,"'eduflow_student'=>array( 'EduFlow Student', array( 'read'=>true, 'eduflow_view_own_classes'=>true, 'eduflow_view_own_profile'=>true )"),
+'single cron hook'=>substr_count($jobs,"const CRON_HOOK = 'eduflow_process_jobs'")===1,
+'runner overlap lock'=>str_contains($jobs,'RUN_LOCK')&&str_contains($jobs,'add_option( self::RUN_LOCK'),
+'stale job recovery'=>str_contains($jobs,"status='running' AND started_at<%s"),
+'unknown handler fails'=>str_contains($jobs,'No handler is registered for this job type.'),
+'migration record lock'=>str_contains($migration,'SELECT GET_LOCK')&&str_contains($migration,'SELECT RELEASE_LOCK'),
+'migration no google scheduling'=>!str_contains($migration,'EduFlow_Google_Service::queue'),
+'health release state'=>str_contains($health,"'ACTION REQUIRED'")&&str_contains($health,"'WARNING'")&&str_contains($health,"'HEALTHY'"),
+'health redacts google config'=>!str_contains($health,'client_secret_encrypted')&&!str_contains($health,'access_token_encrypted'),
+'audit page scoped'=>str_contains($admin,"WHERE institute_id=%d ORDER BY id DESC LIMIT %d OFFSET %d"),
+'rest permissions'=>substr_count($rest,'permission_callback')>=substr_count($rest,'register_rest_route'),
+'oauth state one use'=>str_contains($google,'delete_transient($key)')&&str_contains($google,'get_current_user_id()!==(int)'),
+'stable google lecture mapping'=>str_contains($db,'UNIQUE KEY institute_lecture (institute_id,lecture_id)')&&str_contains($google,"if(\$map['google_event_id'])"),
+'uninstall retains data'=>!preg_match('/DROP TABLE|delete_option|DELETE FROM/i',$uninstall),
+'no dangerous execution'=>!preg_match('/\b(eval|exec|shell_exec|system|passthru)\s*\(/i',$all),
+'no unsafe unserialize'=>!preg_match('/\bunserialize\s*\(/i',$all),
+'no fake identifiers'=>!preg_match('/[a-z0-9]+@(example|invalid)\.|meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}/i',$all),
+'no sheets'=>!preg_match('/sheets\.googleapis|spreadsheets/i',$all),
+);
+foreach($checks as$name=>$ok){if(!$ok){fwrite(STDERR,"Failed Phase 8: $name\n");exit(1);}}echo count($checks)." Phase 8 hardening assertions passed\n";
