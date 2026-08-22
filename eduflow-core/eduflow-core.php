@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EduFlow Institute Suite
  * Description: Multi-institute foundation, security, audit, jobs, and integrations for EduFlow.
- * Version: 8.0.0-RC1
+ * Version: 8.1.0-RC3
  * Author: EduFlow
  * Text Domain: eduflow-core
  * Requires PHP: 7.4
@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EDUFLOW_CORE_VERSION', '8.0.0-RC1' );
+define( 'EDUFLOW_CORE_VERSION', '8.1.0-RC2' );
 define( 'EDUFLOW_CORE_FILE', __FILE__ );
 define( 'EDUFLOW_CORE_DIR', plugin_dir_path( __FILE__ ) );
 
@@ -25,12 +25,14 @@ require_once EDUFLOW_CORE_DIR . 'includes/class-legacy-adapter.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-contact-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-admission-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-student-service.php';
+require_once EDUFLOW_CORE_DIR . 'includes/class-production-orchestrator.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-access-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-payment-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-teacher-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-batch-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-class-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-crypto-service.php';
+require_once EDUFLOW_CORE_DIR . 'includes/class-ytc-meet-bridge.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-google-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-demo-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-account-link-service.php';
@@ -75,3 +77,6 @@ add_action( 'plugins_loaded', static function () {
 		( new EduFlow_Migration_Admin() )->register();
 	}
 } );
+
+require_once __DIR__ . '/includes/class-ytc-demoflow-bridge.php';
+EduFlow_YTC_DemoFlow_Bridge::register();
