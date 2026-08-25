@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EduFlow Institute Suite
  * Description: Multi-institute foundation, security, audit, jobs, and integrations for EduFlow.
- * Version: 8.6.1
+ * Version: 8.6.2
  * Author: EduFlow
  * Text Domain: eduflow-core
  * Requires PHP: 7.4
@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EDUFLOW_CORE_VERSION', '8.6.1' );
+define( 'EDUFLOW_CORE_VERSION', '8.6.2' );
 define( 'EDUFLOW_CORE_FILE', __FILE__ );
 define( 'EDUFLOW_CORE_DIR', plugin_dir_path( __FILE__ ) );
 
