@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EduFlow Institute Suite
  * Description: Multi-institute foundation, security, audit, jobs, and integrations for EduFlow.
- * Version: 8.5.5
+ * Version: 8.6.0
  * Author: EduFlow
  * Text Domain: eduflow-core
  * Requires PHP: 7.4
@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EDUFLOW_CORE_VERSION', '8.5.5' );
+define( 'EDUFLOW_CORE_VERSION', '8.6.0' );
 define( 'EDUFLOW_CORE_FILE', __FILE__ );
 define( 'EDUFLOW_CORE_DIR', plugin_dir_path( __FILE__ ) );
 
@@ -56,6 +56,7 @@ require_once EDUFLOW_CORE_DIR . 'includes/class-rest.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-activator.php';
 require_once EDUFLOW_CORE_DIR . 'admin/class-admin.php';
 require_once EDUFLOW_CORE_DIR . 'admin/class-phase3-admin.php';
+require_once EDUFLOW_CORE_DIR . 'admin/class-classes-corporate-admin.php';
 require_once EDUFLOW_CORE_DIR . 'admin/class-google-admin.php';
 require_once EDUFLOW_CORE_DIR . 'admin/class-demo-admin.php';
 require_once EDUFLOW_CORE_DIR . 'admin/class-control-center.php';
@@ -78,6 +79,7 @@ add_action( 'plugins_loaded', static function () {
 	if ( is_admin() ) {
 		( new EduFlow_Admin() )->register();
 		( new EduFlow_Phase3_Admin() )->register();
+		( new EduFlow_Classes_Corporate_Admin() )->register();
 		( new EduFlow_Google_Admin() )->register();
 		( new EduFlow_Demo_Admin() )->register();
 		( new EduFlow_Control_Center() )->register();
