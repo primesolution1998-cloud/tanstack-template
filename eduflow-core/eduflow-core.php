@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EduFlow Institute Suite
  * Description: Multi-institute foundation, security, audit, jobs, and integrations for EduFlow.
- * Version: 8.6.0
+ * Version: 8.6.1
  * Author: EduFlow
  * Text Domain: eduflow-core
  * Requires PHP: 7.4
@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EDUFLOW_CORE_VERSION', '8.6.0' );
+define( 'EDUFLOW_CORE_VERSION', '8.6.1' );
 define( 'EDUFLOW_CORE_FILE', __FILE__ );
 define( 'EDUFLOW_CORE_DIR', plugin_dir_path( __FILE__ ) );
 
@@ -85,6 +85,12 @@ add_action( 'plugins_loaded', static function () {
 		( new EduFlow_Control_Center() )->register();
 		( new EduFlow_Phase6_Admin() )->register();
 		( new EduFlow_Migration_Admin() )->register();
+
+		// Phase3 registers the legacy Classes renderer first. Remove only that
+		// callback before the corporate Classes submenu is rebound at priority 999.
+		add_action( 'admin_menu', static function () {
+			remove_action( 'eduflow_page_eduflow-classes', array( 'EduFlow_Phase3_Admin', 'classes' ) );
+		}, 998 );
 	}
 } );
 
