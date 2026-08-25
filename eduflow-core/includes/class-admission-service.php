@@ -21,7 +21,12 @@ final class EduFlow_Admission_Service {
 		if ( $duplicate ) { return new WP_Error( 'duplicate_admission', 'Possible duplicate admission: ' . $duplicate ); }
 		$id = EduFlow_ID_Service::generate( 'admission', $institute_id ); if ( is_wp_error( $id ) ) { return $id; }
 		$now = current_time( 'mysql', true ); $data = array_merge( $data, array( 'canonical_id'=>$id, 'institute_id'=>$institute_id, 'admission_status'=>'admission_created', 'created_by'=>get_current_user_id(), 'status'=>'active', 'created_at'=>$now, 'updated_at'=>$now ) );
-		if ( false === $wpdb->insert( $table, $data ) ) { return new WP_Error( 'admission_create_failed', 'Admission could not be created.' ); }
+		if ( false === $wpdb->insert( $table, $data ) ) {
+    return new WP_Error(
+        'admission_create_failed',
+        'Admission could not be created. DB: ' . $wpdb->last_error
+    );
+}
 		EduFlow_Audit_Service::log( 'admission_created', 'admission', $id, null, $data, $institute_id ); return (int) $wpdb->insert_id;
 	}
 	public static function get( $id, $institute_id = 0, $lock = false ) { global $wpdb; $table=EduFlow_DB::table('admissions'); $institute_id=$institute_id?:EduFlow_Settings::institute_db_id(); return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table WHERE id=%d AND institute_id=%d" . ( $lock ? ' FOR UPDATE' : '' ), $id, $institute_id ), ARRAY_A ); }

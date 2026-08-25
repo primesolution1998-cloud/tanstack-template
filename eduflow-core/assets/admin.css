@@ -1,1 +1,402 @@
 .eduflow-wrap{max-width:1200px}.eduflow-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.eduflow-card{display:block;background:#fff;border:1px solid #dcdcde;border-radius:6px;margin-top:20px;padding:20px;text-decoration:none;color:inherit}.eduflow-card code{white-space:pre-wrap;word-break:break-word}.eduflow-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.eduflow-form-grid label{font-weight:600}.eduflow-form-grid input,.eduflow-form-grid select,.eduflow-form-grid textarea{display:block;width:100%;margin-top:5px}.eduflow-form-grid .wide{grid-column:1/-1}.eduflow-wrap .tablenav-pages{margin:16px 0}@media(max-width:782px){.eduflow-wrap .wp-list-table{display:block;overflow-x:auto}.eduflow-form-grid{grid-template-columns:1fr}}
+
+/* EduFlow Admission Status + Actions */
+.eduflow-status-badge{
+    display:inline-block;
+    padding:6px 11px;
+    border-radius:14px;
+    font-weight:700;
+    font-size:12px;
+    line-height:1.2;
+    white-space:nowrap;
+}
+.eduflow-status-approved,
+.eduflow-status-active{
+    background:#dff7e7;
+    color:#137333;
+    border:1px solid #8bd3a4;
+}
+.eduflow-status-hold{
+    background:#fff4cc;
+    color:#8a5a00;
+    border:1px solid #e5c764;
+}
+.eduflow-status-rejected{
+    background:#fde2e2;
+    color:#b42318;
+    border:1px solid #f1a3a3;
+}
+.eduflow-status-admission_created{
+    background:#eaf2ff;
+    color:#2457a6;
+    border:1px solid #aac8f5;
+}
+.eduflow-action-buttons{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    align-items:center;
+}
+.eduflow-btn{
+    display:inline-block;
+    padding:6px 10px;
+    border-radius:6px;
+    text-decoration:none;
+    font-weight:600;
+    font-size:12px;
+    line-height:1.2;
+    border:1px solid transparent;
+}
+.eduflow-btn-edit{
+    background:#eef1f4;
+    color:#1d2327;
+    border-color:#c3c4c7;
+}
+.eduflow-btn-approve{
+    background:#1f9d55;
+    color:#fff;
+    border-color:#188047;
+}
+.eduflow-btn-hold{
+    background:#f0ad4e;
+    color:#1d2327;
+    border-color:#d99536;
+}
+.eduflow-btn-reject{
+    background:#d63638;
+    color:#fff;
+    border-color:#b32d2e;
+}
+.eduflow-btn:hover{
+    filter:brightness(.95);
+}
+
+
+/* EduFlow Professional Students UI v8.3.1 */
+
+.eduflow-student-filters{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:center;
+    margin:15px 0 18px;
+}
+
+.eduflow-student-filters input,
+.eduflow-student-filters select{
+    min-height:34px;
+}
+
+.eduflow-students-table td{
+    vertical-align:middle;
+}
+
+.eduflow-student-status,
+.eduflow-fee-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+    white-space:nowrap;
+    border:1px solid transparent;
+}
+
+.eduflow-student-status-approved,
+.eduflow-student-status-active,
+.eduflow-fee-paid{
+    background:#e7f7ed;
+    color:#126b32;
+    border-color:#8fd0a5;
+}
+
+.eduflow-student-status-hold,
+.eduflow-fee-partial,
+.eduflow-fee-due{
+    background:#fff5d6;
+    color:#805b00;
+    border-color:#e2c563;
+}
+
+.eduflow-student-status-dropped,
+.eduflow-student-status-cancelled{
+    background:#fde8e8;
+    color:#a61b1b;
+    border-color:#eba4a4;
+}
+
+.eduflow-student-status-completed{
+    background:#e8eef9;
+    color:#35588a;
+    border-color:#a9bddc;
+}
+
+.eduflow-fee-pending{
+    background:#eef1f4;
+    color:#50575e;
+    border-color:#c3c4c7;
+}
+
+.eduflow-student-edit-card{
+    margin-top:22px;
+    border-left:4px solid #2271b1;
+}
+
+.eduflow-student-edit-card select,
+.eduflow-student-edit-card input{
+    width:100%;
+}
+
+
+/* EduFlow Professional Batch Control Center v8.3.7 */
+
+.eduflow-batch-toolbar{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    flex-wrap:wrap;
+    margin:18px 0;
+}
+
+.eduflow-batch-toolbar input,
+.eduflow-batch-toolbar select{
+    min-height:36px;
+}
+
+.eduflow-table-wrap{
+    overflow-x:auto;
+}
+
+.eduflow-pro-batch-table td{
+    vertical-align:middle;
+}
+
+.eduflow-muted{
+    margin-top:4px;
+    color:#646970;
+    font-size:12px;
+}
+
+.eduflow-capacity-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:58px;
+    padding:6px 10px;
+    background:#eef4ff;
+    border:1px solid #a9c7f5;
+    border-radius:999px;
+    color:#174ea6;
+    font-weight:700;
+}
+
+.eduflow-batch-status{
+    display:inline-flex;
+    align-items:center;
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+}
+
+.eduflow-batch-status-active{
+    background:#e8f7ed;
+    border:1px solid #99d4aa;
+    color:#137333;
+}
+
+.eduflow-batch-status-paused{
+    background:#fff4d6;
+    border:1px solid #e7c967;
+    color:#805b00;
+}
+
+.eduflow-batch-status-closed{
+    background:#fce8e6;
+    border:1px solid #e6aaa4;
+    color:#a50e0e;
+}
+
+.eduflow-action-grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+}
+
+.eduflow-danger-action{
+    border-color:#d63638 !important;
+    color:#b32d2e !important;
+}
+
+.eduflow-warning-action{
+    border-color:#dba617 !important;
+    color:#805b00 !important;
+}
+
+.eduflow-roster-card{
+    margin-top:20px;
+    border-left:4px solid #2271b1;
+}
+
+.eduflow-roster-heading{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+}
+
+.eduflow-days-field{
+    grid-column:1 / -1;
+}
+
+.eduflow-day-grid{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+    padding-top:8px;
+}
+
+.eduflow-day-grid label{
+    display:flex;
+    align-items:center;
+    gap:5px;
+}
+
+
+/* Professional Roster Manager v8.3.8 */
+
+.eduflow-roster-summary{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(140px,1fr));
+    gap:12px;
+    margin:16px 0 20px;
+}
+
+.eduflow-roster-summary > div{
+    padding:12px 14px;
+    background:#f6f7f7;
+    border:1px solid #dcdcde;
+    border-radius:8px;
+}
+
+.eduflow-roster-summary span{
+    display:block;
+    font-size:12px;
+    color:#646970;
+    margin-bottom:5px;
+}
+
+.eduflow-roster-table td{
+    vertical-align:middle;
+}
+
+.eduflow-inline-transfer{
+    display:flex;
+    gap:6px;
+    align-items:center;
+    flex-wrap:wrap;
+}
+
+.eduflow-inline-transfer select{
+    min-width:220px;
+}
+
+.eduflow-mini-badge{
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:999px;
+    background:#eef4ff;
+    border:1px solid #b7cdf2;
+    font-size:12px;
+    font-weight:600;
+}
+
+.eduflow-roster-add{
+    margin-top:20px;
+    padding-top:18px;
+    border-top:1px solid #dcdcde;
+}
+
+.eduflow-roster-add form{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+}
+
+.eduflow-roster-add select{
+    min-width:360px;
+}
+
+@media(max-width:900px){
+    .eduflow-roster-summary{
+        grid-template-columns:1fr 1fr;
+    }
+}
+
+
+/* Corporate Teacher Control Center v8.3.9 */
+
+.eduflow-teacher-toolbar{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin:18px 0;
+}
+
+.eduflow-teacher-toolbar input,
+.eduflow-teacher-toolbar select{
+    min-height:36px;
+}
+
+.eduflow-teacher-table td{
+    vertical-align:middle;
+}
+
+.eduflow-workload-badge{
+    display:inline-flex;
+    margin:2px;
+    padding:5px 8px;
+    border-radius:999px;
+    background:#eef4ff;
+    border:1px solid #b7cdf2;
+    color:#174ea6;
+    font-size:12px;
+    font-weight:600;
+}
+
+.eduflow-teacher-status{
+    display:inline-flex;
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+    border:1px solid transparent;
+}
+
+.eduflow-teacher-status-active{
+    background:#e7f7ed;
+    border-color:#8fd0a5;
+    color:#137333;
+}
+
+.eduflow-teacher-status-on_leave,
+.eduflow-teacher-status-paused{
+    background:#fff5d6;
+    border-color:#e2c563;
+    color:#805b00;
+}
+
+.eduflow-teacher-status-inactive{
+    background:#fde8e8;
+    border-color:#eba4a4;
+    color:#a61b1b;
+}
+
+.eduflow-teacher-batches-card{
+    margin-top:20px;
+    border-left:4px solid #2271b1;
+}

@@ -45,6 +45,25 @@ final class EduFlow_Production_Orchestrator {
         $student_id = EduFlow_Student_Service::convert_admission( $admission_id, $institute_id );
         if ( is_wp_error( $student_id ) ) return $student_id;
 
+        $corporate_autoflow = EduFlow_Corporate_Autoflow_Service::sync_student_from_admission(
+            $student_id,
+            $admission_id,
+            $institute_id
+        );
+
+        if ( is_wp_error( $corporate_autoflow ) ) {
+            EduFlow_Audit_Service::log(
+                'corporate_autoflow_pending',
+                'student',
+                $student_id,
+                null,
+                array(
+                    'reason' => $corporate_autoflow->get_error_message()
+                ),
+                $institute_id
+            );
+        }
+
         $student = EduFlow_Student_Service::get( $student_id, $institute_id );
         if ( $student && ! empty( $student['email'] ) && empty( $student['wp_user_id'] ) ) {
             $invite = EduFlow_Account_Link_Service::create_student_invitation( $student_id, $institute_id );

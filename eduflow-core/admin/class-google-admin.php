@@ -5,7 +5,40 @@ final class EduFlow_Google_Admin {
 	private function guard(){if(!current_user_can('eduflow_manage_settings')){wp_die(esc_html__('You do not have permission to manage Google integration.','eduflow-core'));}}
 	private function redirect($result,$success){$error=is_wp_error($result);wp_safe_redirect(add_query_arg(array('page'=>'eduflow-settings','tab'=>'google','eduflow_notice'=>rawurlencode($error?$result->get_error_message():$success),'notice_type'=>$error?'error':'success'),admin_url('admin.php')));exit;}
 	public static function page(){if(!current_user_can('eduflow_manage_settings')){return;}$status=EduFlow_Google_Service::public_status();if(!empty($_GET['eduflow_notice'])){$type='error'===($_GET['notice_type']??'')?'error':'success';echo '<div class="notice notice-'.esc_attr($type).' is-dismissible"><p>'.esc_html(sanitize_text_field(wp_unslash($_GET['eduflow_notice']))).'</p></div>';}?><div class="wrap eduflow-wrap"><h1>EduFlow Settings</h1><nav class="nav-tab-wrapper"><a class="nav-tab" href="<?php echo esc_url(admin_url('admin.php?page=eduflow-settings'));?>">Institute</a><a class="nav-tab nav-tab-active" href="<?php echo esc_url(admin_url('admin.php?page=eduflow-settings&tab=google'));?>">Google Integration</a></nav><div class="eduflow-card"><h2>Google Calendar / Meet</h2><?php if(!empty($status['bridge'])):?><div class="notice notice-success inline"><p><strong>Using existing YTC Google Meet & Calendar connection.</strong> No second OAuth setup is required.</p></div><?php endif;?><table class="widefat striped"><tbody><tr><th>Redirect URI</th><td><code><?php echo esc_html($status['redirect_uri']);?></code></td></tr><tr><th>Connected Account</th><td><?php echo esc_html($status['connected_account']?:'Not connected');?></td></tr><tr><th>Calendar ID</th><td><?php echo esc_html($status['calendar_id']?:'Missing');?></td></tr><tr><th>Connection Status</th><td><?php echo esc_html(ucfirst($status['connection_status']));?></td></tr><tr><th>Provider</th><td><?php echo esc_html($status['provider']??'EduFlow OAuth');?></td></tr><tr><th>Last Tested</th><td><?php echo esc_html($status['last_tested_at']?:'Never');?></td></tr></tbody></table><?php if(empty($status['bridge'])):?><form method="post" action="<?php echo esc_url(admin_url('admin-post.php'));?>"><input type="hidden" name="action" value="eduflow_google_save"><?php wp_nonce_field('eduflow_google_save');?><table class="form-table"><tr><th><label for="google-client-id">Google Client ID</label></th><td><input class="regular-text" id="google-client-id" name="client_id" value="<?php echo esc_attr($status['client_id']);?>" autocomplete="off" required></td></tr><tr><th><label for="google-client-secret">Google Client Secret</label></th><td><input class="regular-text" type="password" id="google-client-secret" name="client_secret" autocomplete="new-password"><p class="description">Leave blank to retain the securely stored secret.</p></td></tr><tr><th><label for="google-calendar-id">Calendar ID</label></th><td><input class="regular-text" id="google-calendar-id" name="calendar_id" value="<?php echo esc_attr($status['calendar_id']?:'primary');?>" required></td></tr></table><?php submit_button('Save Google Configuration');?></form><?php endif;?><p><?php if($status['connected']):?><a class="button" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=eduflow_google_test'),'eduflow_google_test'));?>">Test Connection</a> <a class="button" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=eduflow_google_disconnect'),'eduflow_google_disconnect'));?>">Disconnect Google</a><?php else:?><a class="button button-primary" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=eduflow_google_connect'),'eduflow_google_connect'));?>">Connect Google</a><?php endif;?></p></div></div><?php }
-	public function save(){$this->guard();check_admin_referer('eduflow_google_save');$this->redirect(EduFlow_Google_Service::save_config(wp_unslash($_POST)),'Google configuration saved.');}
+	public function save(){
+    $this->guard();
+    check_admin_referer('eduflow_google_save');
+
+    try {
+        $result = EduFlow_Google_Service::save_config(
+            wp_unslash($_POST)
+        );
+    } catch (Throwable $e) {
+        $result = new WP_Error(
+            'google_config_runtime_error',
+            $e->getMessage()
+        );
+    }
+
+    $error = is_wp_error($result);
+
+    $url = add_query_arg(
+        array(
+            'page' => 'eduflow-settings',
+            'tab' => 'google',
+            'eduflow_notice' => rawurlencode(
+                $error
+                ? $result->get_error_message()
+                : 'Google configuration saved.'
+            ),
+            'notice_type' => $error ? 'error' : 'success',
+        ),
+        admin_url('admin.php')
+    );
+
+    wp_redirect($url);
+    exit;
+}
 	public function connect(){$this->guard();check_admin_referer('eduflow_google_connect');$url=EduFlow_Google_Service::authorization_url();if(is_wp_error($url)){$this->redirect($url,'');}wp_redirect($url);exit;}
 	public function callback(){$this->guard();$result=EduFlow_Google_Service::oauth_callback(sanitize_text_field(wp_unslash($_GET['code']??'')),sanitize_text_field(wp_unslash($_GET['state']??'')));$this->redirect($result,'Google account connected.');}
 	public function disconnect(){$this->guard();check_admin_referer('eduflow_google_disconnect');$this->redirect(EduFlow_Google_Service::disconnect(),'Google account disconnected.');}

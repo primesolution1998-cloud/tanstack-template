@@ -58,11 +58,38 @@ final class EduFlow_YTC_Meet_Bridge {
         $result = YTC_Meet_Google::create_meet_event( $args );
         if ( is_wp_error( $result ) ) return self::fail( $map, $result );
 
-        $event_id = sanitize_text_field( $result['id'] ?? '' );
-        $meet = esc_url_raw( $result['hangoutLink'] ?? '' );
-        if ( ! $meet && ! empty( $result['conferenceData']['entryPoints'] ) ) {
-            foreach ( $result['conferenceData']['entryPoints'] as $point ) {
-                if ( 'video' === ( $point['entryPointType'] ?? '' ) && ! empty( $point['uri'] ) ) { $meet = esc_url_raw( $point['uri'] ); break; }
+        $event_id = sanitize_text_field(
+            $result['id']
+            ?? $result['event_id']
+            ?? $result['eventId']
+            ?? ($result['event']['id'] ?? '')
+            ?? ''
+        );
+
+        $meet = esc_url_raw(
+            $result['hangoutLink']
+            ?? $result['meet_url']
+            ?? $result['meetUrl']
+            ?? $result['google_meet_url']
+            ?? ($result['event']['hangoutLink'] ?? '')
+            ?? ($result['data']['hangoutLink'] ?? '')
+            ?? ''
+        );
+
+        $conference =
+            $result['conferenceData']
+            ?? ($result['event']['conferenceData'] ?? array())
+            ?? ($result['data']['conferenceData'] ?? array());
+
+        if ( ! $meet && ! empty( $conference['entryPoints'] ) ) {
+            foreach ( $conference['entryPoints'] as $point ) {
+                if (
+                    'video' === ( $point['entryPointType'] ?? '' )
+                    && ! empty( $point['uri'] )
+                ) {
+                    $meet = esc_url_raw( $point['uri'] );
+                    break;
+                }
             }
         }
         if ( ! $event_id ) return self::fail( $map, new WP_Error( 'google_invalid_response', 'Google returned no event ID.' ) );
@@ -84,6 +111,17 @@ final class EduFlow_YTC_Meet_Bridge {
         update_option( 'eduflow_google_last_successful_sync', $now, false );
         EduFlow_Audit_Service::log( empty( $map['google_event_id'] ) ? 'google_event_created' : 'google_event_updated', 'class', $lecture['canonical_id'], null, array( 'provider'=>self::PROVIDER, 'meet_created'=>(bool)$meet ), $institute_id );
         if ( $meet ) EduFlow_Notification_Service::notify_class( $lecture_id, 'meet_ready', 'Meet ready', 'Google Meet is ready for your class.', $event_id, $institute_id );
+
+        if (
+            $meet
+            && ! empty( $lecture['batch_id'] )
+            && class_exists( 'EduFlow_Batch_Room_Service' )
+        ) {
+            EduFlow_Batch_Room_Service::sync_batch(
+                (int) $lecture['batch_id'],
+                $institute_id
+            );
+        }
         return $meet ? true : new WP_Error( 'retryable_google_sync', '[retryable] Google event exists but Meet URL is still pending.' );
     }
 

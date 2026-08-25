@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EduFlow Institute Suite
  * Description: Multi-institute foundation, security, audit, jobs, and integrations for EduFlow.
- * Version: 8.1.0-RC3
+ * Version: 8.5.5
  * Author: EduFlow
  * Text Domain: eduflow-core
  * Requires PHP: 7.4
@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EDUFLOW_CORE_VERSION', '8.1.0-RC2' );
+define( 'EDUFLOW_CORE_VERSION', '8.5.5' );
 define( 'EDUFLOW_CORE_FILE', __FILE__ );
 define( 'EDUFLOW_CORE_DIR', plugin_dir_path( __FILE__ ) );
 
@@ -23,6 +23,14 @@ require_once EDUFLOW_CORE_DIR . 'includes/class-job-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-migration-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-legacy-adapter.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-contact-service.php';
+require_once EDUFLOW_CORE_DIR . 'includes/class-corporate-autoflow-service.php';
+require_once EDUFLOW_CORE_DIR . 'includes/class-batch-room-service.php';
+require_once EDUFLOW_CORE_DIR . 'includes/class-lecture-room.php';
+require_once EDUFLOW_CORE_DIR . 'includes/class-ytc-teacher-seed.php';
+require_once EDUFLOW_CORE_DIR . 'includes/class-auto-assignment-service.php';
+require_once EDUFLOW_CORE_DIR . 'admin/class-corporate-teacher-admin.php';
+require_once EDUFLOW_CORE_DIR . 'includes/class-ytc-batch-setup.php';
+require_once EDUFLOW_CORE_DIR . 'includes/class-ytc-master-import.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-admission-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-student-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-production-orchestrator.php';
@@ -32,7 +40,7 @@ require_once EDUFLOW_CORE_DIR . 'includes/class-teacher-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-batch-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-class-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-crypto-service.php';
-require_once EDUFLOW_CORE_DIR . 'includes/class-ytc-meet-bridge.php';
+// YTC Meet bridge disabled - native EduFlow Google OAuth.
 require_once EDUFLOW_CORE_DIR . 'includes/class-google-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-demo-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-account-link-service.php';
