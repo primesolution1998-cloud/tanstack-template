@@ -2,7 +2,7 @@
 /**
  * Plugin Name: EduFlow Institute Suite
  * Description: Multi-institute foundation, security, audit, jobs, and integrations for EduFlow.
- * Version: 8.6.2
+ * Version: 8.6.3
  * Author: EduFlow
  * Text Domain: eduflow-core
  * Requires PHP: 7.4
@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EDUFLOW_CORE_VERSION', '8.6.2' );
+define( 'EDUFLOW_CORE_VERSION', '8.6.3' );
 define( 'EDUFLOW_CORE_FILE', __FILE__ );
 define( 'EDUFLOW_CORE_DIR', plugin_dir_path( __FILE__ ) );
 
@@ -70,6 +70,7 @@ register_deactivation_hook( __FILE__, array( 'EduFlow_Activator', 'deactivate' )
 add_action( 'plugins_loaded', static function () {
 	EduFlow_Activator::maybe_upgrade();
 	EduFlow_Job_Service::register();
+	EduFlow_Job_Service::schedule();
 	EduFlow_REST::register();
 	EduFlow_Account_Link_Service::register();
 	EduFlow_Notification_Delivery_Service::register();
