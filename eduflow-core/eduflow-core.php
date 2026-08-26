@@ -31,6 +31,7 @@ require_once EDUFLOW_CORE_DIR . 'includes/class-payment-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-teacher-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-batch-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-class-service.php';
+require_once EDUFLOW_CORE_DIR . 'includes/class-classroom-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-crypto-service.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-ytc-meet-bridge.php';
 require_once EDUFLOW_CORE_DIR . 'includes/class-google-service.php';
