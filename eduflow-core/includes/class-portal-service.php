@@ -20,9 +20,9 @@ final class EduFlow_Portal_Service {
 			'today'=>array_values( array_filter( $classes, static function( $class ){ return $class['class_date'] === current_time( 'Y-m-d' ); } ) ),
 			'next'=>isset( $classes[0] ) ? $classes[0] : null,
 			'upcoming'=>$classes,
-				'notifications'=>EduFlow_Notification_Service::for_user( $user_id, 20, $institute_id ),
-				'unread_notifications'=>EduFlow_Notification_Service::unread_count( $user_id, $institute_id ),
-				'attendance'=>EduFlow_Attendance_Service::own_summary( $user_id ),
+			'notifications'=>EduFlow_Notification_Service::for_user( $user_id, 20, $institute_id ),
+			'unread_notifications'=>EduFlow_Notification_Service::unread_count( $user_id, $institute_id ),
+			'attendance'=>EduFlow_Attendance_Service::own_summary( $user_id ),
 		);
 	}
 
@@ -34,6 +34,10 @@ final class EduFlow_Portal_Service {
 		$teacher_id = $student['teacher_id'] ?: ( $batch['teacher_id'] ?? 0 );
 		$teacher = $teacher_id ? $wpdb->get_row( $wpdb->prepare( "SELECT id,canonical_id,name FROM $teachers WHERE id=%d AND institute_id=%d", $teacher_id, $institute_id ), ARRAY_A ) : null;
 		$access = self::access_record( $student['id'], $institute_id );
+		if ( $batch ) {
+			$classroom = EduFlow_Classroom_Service::access( $batch['id'], get_current_user_id(), $institute_id );
+			$batch['classroom_url'] = is_wp_error( $classroom ) ? null : EduFlow_Classroom_Service::join_url( $batch['id'] );
+		}
 		return array(
 			'id'=>(int)$student['id'], 'name'=>$student['name'], 'canonical_id'=>$student['canonical_id'],
 			'course'=>$student['course'], 'level'=>$student['level'], 'class_type'=>$student['class_type'],
@@ -60,6 +64,13 @@ final class EduFlow_Portal_Service {
 			$url = EduFlow_Meet_Access_Service::get_url( $row['id'], get_current_user_id(), $institute_id );
 			$row['meet_url'] = is_wp_error( $url ) ? null : $url;
 			$row['can_join'] = ! is_wp_error( $url );
+			$row['classroom_url'] = null;
+			if ( ! empty( $row['batch_id'] ) ) {
+				$classroom = EduFlow_Classroom_Service::access( $row['batch_id'], get_current_user_id(), $institute_id );
+				if ( ! is_wp_error( $classroom ) ) {
+					$row['classroom_url'] = EduFlow_Classroom_Service::join_url( $row['batch_id'] );
+				}
+			}
 		}
 		return $rows;
 	}
@@ -85,6 +96,13 @@ final class EduFlow_Portal_Service {
 			$url = EduFlow_Meet_Access_Service::get_url( $row['id'], $user_id, $institute_id );
 			$row['meet_url'] = is_wp_error( $url ) ? null : $url;
 			$row['can_join'] = ! is_wp_error( $url );
+			$row['classroom_url'] = null;
+			if ( ! empty( $row['batch_id'] ) ) {
+				$classroom = EduFlow_Classroom_Service::access( $row['batch_id'], $user_id, $institute_id );
+				if ( ! is_wp_error( $classroom ) ) {
+					$row['classroom_url'] = EduFlow_Classroom_Service::join_url( $row['batch_id'] );
+				}
+			}
 		}
 		return array(
 			'portal_type'=>'teacher', 'institute_id'=>$institute_id,
@@ -92,8 +110,8 @@ final class EduFlow_Portal_Service {
 			'today'=>array_values( array_filter( $rows, static function( $class ){ return $class['class_date'] === current_time( 'Y-m-d' ); } ) ),
 			'next'=>isset( $rows[0] ) ? $rows[0] : null,
 			'upcoming'=>$rows,
-				'notifications'=>EduFlow_Notification_Service::for_user( $user_id, 20, $institute_id ),
-				'unread_notifications'=>EduFlow_Notification_Service::unread_count( $user_id, $institute_id ),
+			'notifications'=>EduFlow_Notification_Service::for_user( $user_id, 20, $institute_id ),
+			'unread_notifications'=>EduFlow_Notification_Service::unread_count( $user_id, $institute_id ),
 		);
 	}
 }
