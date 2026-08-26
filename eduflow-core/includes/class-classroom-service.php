@@ -30,7 +30,18 @@ final class EduFlow_Classroom_Service {
 		}
 
 		$batch_id = absint( $batch_id );
-		$institute_id = $institute_id ?: EduFlow_Settings::institute_db_id();
+		$student_link = EduFlow_Account_Link_Service::linked_entity_any_institute( 'student', $user_id );
+		$teacher_link = EduFlow_Account_Link_Service::linked_entity_any_institute( 'teacher', $user_id );
+		if ( ! $institute_id ) {
+			if ( $student_link ) {
+				$institute_id = (int) $student_link['institute_id'];
+			} elseif ( $teacher_link ) {
+				$institute_id = (int) $teacher_link['institute_id'];
+			} else {
+				$institute_id = EduFlow_Settings::institute_db_id();
+			}
+		}
+
 		$batch = EduFlow_Batch_Service::get( $batch_id, $institute_id );
 		if ( ! $batch || 'closed' === $batch['batch_status'] ) {
 			return new WP_Error( 'classroom_batch_unavailable', 'This batch classroom is unavailable.', array( 'status' => 404 ) );
@@ -40,7 +51,6 @@ final class EduFlow_Classroom_Service {
 			return self::payload( $batch, $institute_id, $user_id, 'admin', true );
 		}
 
-		$student_link = EduFlow_Account_Link_Service::linked_entity_any_institute( 'student', $user_id );
 		if ( $student_link && (int) $student_link['institute_id'] === (int) $institute_id ) {
 			$assignments = EduFlow_DB::table( 'batch_students' );
 			$active = $wpdb->get_var( $wpdb->prepare(
@@ -54,7 +64,6 @@ final class EduFlow_Classroom_Service {
 			}
 		}
 
-		$teacher_link = EduFlow_Account_Link_Service::linked_entity_any_institute( 'teacher', $user_id );
 		if ( $teacher_link && (int) $teacher_link['institute_id'] === (int) $institute_id && (int) $batch['teacher_id'] === (int) $teacher_link['entity_id'] ) {
 			return self::payload( $batch, $institute_id, $user_id, 'teacher', true );
 		}
